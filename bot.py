@@ -56,8 +56,8 @@ class OnayView(discord.ui.View):
         # DM gönder
         try:
             await self.hedef_uye.send(
-                f"İç isim talebiniz reddedildi!\n"
-                f"İstediğiniz isim: **{self.istenen_isim}**\n"
+                f"Ic isim talebiniz reddedildi!\n"
+                f"Istediginiz isim: **{self.istenen_isim}**\n"
                 f"Lütfen tekrar deneyin veya yetkili ile iletişime geçin."
             )
         except discord.Forbidden:
@@ -65,7 +65,7 @@ class OnayView(discord.ui.View):
 
         # Kanalda mesaj gönder, sonra sil
         msg = await interaction.channel.send(
-            f"{self.hedef_uye.mention} ❌ İç ismin onaylanmadı! DM kutunu kontrol et."
+            f"{self.hedef_uye.mention} ❌ Ic ismin onaylanmadi! DM kutunu kontrol et."
         )
         await asyncio.sleep(10)
         try:
@@ -101,14 +101,14 @@ async def on_message(message: discord.Message):
         pass
 
     embed = discord.Embed(
-        title="İç İsim Talebi",
+        title="Ic Isim Talebi",
         description=(
-            f"**Kişi:** {message.author.mention}\n"
-            f"**İstenen İsim:** `{istenen_isim}`"
+            f"**Kisi:** {message.author.mention}\n"
+            f"**Istenen Isim:** `{istenen_isim}`"
         ),
         color=discord.Color.yellow(),
     )
-    embed.set_footer(text="Yetkili onayı bekleniyor...")
+    embed.set_footer(text="Yetkili onayi bekleniyor...")
 
     view = OnayView(hedef_uye=message.author, istenen_isim=istenen_isim)
     await message.channel.send(embed=embed, view=view)
