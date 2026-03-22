@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import os
+import asyncio
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 IC_ISIM_KANAL_ID = 1484188689478189200
@@ -49,19 +50,28 @@ class OnayView(discord.ui.View):
             )
             return
 
+        # Önce interaction'ı hemen kapat
+        await interaction.response.defer()
+
+        # DM gönder
         try:
             await self.hedef_uye.send(
-                f"Ic isim talebiniz reddedildi!\n"
-                f"Istediginiz isim: {self.istenen_isim}\n"
-                f"Lutfen tekrar deneyin veya yetkili ile iletisime gecin."
+                f"İç isim talebiniz reddedildi!\n"
+                f"İstediğiniz isim: **{self.istenen_isim}**\n"
+                f"Lütfen tekrar deneyin veya yetkili ile iletişime geçin."
             )
         except discord.Forbidden:
             pass
 
-        await interaction.response.send_message(
-            f"{self.hedef_uye.mention} Ic ismin onaylanmadi! DM kutunu kontrol et.",
-            delete_after=10,
+        # Kanalda mesaj gönder, sonra sil
+        msg = await interaction.channel.send(
+            f"{self.hedef_uye.mention} ❌ İç ismin onaylanmadı! DM kutunu kontrol et."
         )
+        await asyncio.sleep(10)
+        try:
+            await msg.delete()
+        except discord.NotFound:
+            pass
 
         self.stop()
 
@@ -91,14 +101,14 @@ async def on_message(message: discord.Message):
         pass
 
     embed = discord.Embed(
-        title="Ic Isim Talebi",
+        title="İç İsim Talebi",
         description=(
-            f"**Kisi:** {message.author.mention}\n"
-            f"**Istenen Isim:** `{istenen_isim}`"
+            f"**Kişi:** {message.author.mention}\n"
+            f"**İstenen İsim:** `{istenen_isim}`"
         ),
         color=discord.Color.yellow(),
     )
-    embed.set_footer(text="Yetkili onayi bekleniyor...")
+    embed.set_footer(text="Yetkili onayı bekleniyor...")
 
     view = OnayView(hedef_uye=message.author, istenen_isim=istenen_isim)
     await message.channel.send(embed=embed, view=view)
