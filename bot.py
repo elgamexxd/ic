@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import os
-import asyncio
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 IC_ISIM_KANAL_ID = 1484188689478189200
@@ -32,8 +31,10 @@ class OnayView(discord.ui.View):
         try:
             await self.hedef_uye.edit(nick=self.istenen_isim)
             await interaction.response.send_message(
-                f"{self.hedef_uye.mention} adı **{self.istenen_isim}** olarak guncellendi!"
+                f"{self.hedef_uye.mention} adı **{self.istenen_isim}** olarak guncellendi!",
+                delete_after=120,
             )
+            await interaction.message.delete()
         except discord.Forbidden:
             await interaction.response.send_message(
                 "Bu kisinin adini degistirme yetkim yok!", ephemeral=True
@@ -50,28 +51,20 @@ class OnayView(discord.ui.View):
             )
             return
 
-        # Önce interaction'ı hemen kapat
-        await interaction.response.defer()
-
-        # DM gönder
         try:
             await self.hedef_uye.send(
                 f"Ic isim talebiniz reddedildi!\n"
-                f"Istediginiz isim: **{self.istenen_isim}**\n"
-                f"Lütfen tekrar deneyin veya yetkili ile iletişime geçin."
+                f"Istediginiz isim: {self.istenen_isim}\n"
+                f"Lutfen tekrar deneyin veya yetkili ile iletisime gecin."
             )
         except discord.Forbidden:
             pass
 
-        # Kanalda mesaj gönder, sonra sil
-        msg = await interaction.channel.send(
-            f"{self.hedef_uye.mention} ❌ Ic ismin onaylanmadi! DM kutunu kontrol et."
+        await interaction.response.send_message(
+            f"{self.hedef_uye.mention} Ic ismin onaylanmadi! DM kutunu kontrol et.",
+            delete_after=120,
         )
-        await asyncio.sleep(10)
-        try:
-            await msg.delete()
-        except discord.NotFound:
-            pass
+        await interaction.message.delete()
 
         self.stop()
 
